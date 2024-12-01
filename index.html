@@ -3,57 +3,117 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Beni seviyor musun?</title>
+    <title>Yılan Oyunu</title>
     <style>
-    .bto {
-background-color: red;
-color: black;
-border-radius: 10px;
-
-}
-  #jumpscare {
-            display: none; /* Başta görünmesin */
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            z-index: 1000; /* En üstte görünsün */
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f0f0f0;
         }
 
-        #overlay {
-            display: none; /* Başta görünmesin */
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: black;
-            opacity: 0.8; /* Arkaplan karanlık */
-            z-index: 999; /* Resim arkasında */
+        canvas {
+            border: 1px solid black;
         }
     </style>
-    <script>
-        function iyimesaj() {
-            alert("Çok teşekkürler ☺");
-        }
-
-        function kotumesaj() {
-            document.getElementById('overlay').style.display = 'block'; // Arka plan karart
-            document.getElementById('jumpscare').style.display = 'block'; // Jumpscare göster
-            document.getElementById('jump-audio').play(); // Ses çal
-            setTimeout(() => {
-                document.getElementById('overlay').style.display = 'none'; // Kapat
-                document.getElementById('jumpscare').style.display = 'none';
-            }, 2000); // 2 saniye sonra kaybolur
-        }
-    </script>
 </head>
 <body>
-    <button class="bto" onclick="iyimesaj()">Tabii ki de! 🤠</button>
-    <button class="bto" onclick="kotumesaj()">Yoo, sevmiyorum 😒</button>
+    <canvas id="gameCanvas" width="400" height="400"></canvas>
 
-    <div id="overlay"></div>
-    <img id="jumpscare" src="https://i.imgur.com/QUFQfVF.png" alt="Jumpscare" width="400">
-    <audio id="jump-audio" src="https://www.fesliyanstudios.com/play-mp3/4666"></audio>
+    <script>
+        const canvas = document.getElementById("gameCanvas");
+        const ctx = canvas.getContext("2d");
+
+        const box = 20;
+        let score = 0;
+        let snake = [{x: 9 * box, y: 10 * box}];
+        let food = {
+            x: Math.floor(Math.random() * 19 + 1) * box,
+            y: Math.floor(Math.random() * 19 + 1) * box
+        };
+        let d;
+
+        document.addEventListener("keydown", direction);
+
+        function direction(event) {
+            if (event.keyCode == 37 && d != "RIGHT") {
+                d = "LEFT";
+            } else if (event.keyCode == 38 && d != "DOWN") {
+                d = "UP";
+            } else if (event.keyCode == 39 && d != "LEFT") {
+                d = "RIGHT";
+            } else if (event.keyCode == 40 && d != "UP") {
+                d = "DOWN";
+            }
+        }
+
+        function draw() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Yılanın vücut kısmını çiz
+            for (let i = 0; i < snake.length; i++) {
+                ctx.fillStyle = (i === 0) ? "green" : "white";
+                ctx.fillRect(snake[i].x, snake[i].y, box, box);
+                ctx.strokeStyle = "black";
+                ctx.strokeRect(snake[i].x, snake[i].y, box, box);
+            }
+
+            // Yılanın başı
+            ctx.fillStyle = "green";
+            ctx.fillRect(snake[0].x, snake[0].y, box, box);
+            ctx.strokeStyle = "black";
+            ctx.strokeRect(snake[0].x, snake[0].y, box, box);
+
+            // Yemek
+            ctx.fillStyle = "red";
+            ctx.fillRect(food.x, food.y, box, box);
+
+            // Yılanın hareketi
+            let snakeX = snake[0].x;
+            let snakeY = snake[0].y;
+
+            if (d == "LEFT") snakeX -= box;
+            if (d == "UP") snakeY -= box;
+            if (d == "RIGHT") snakeX += box;
+            if (d == "DOWN") snakeY += box;
+
+            // Yılanın vücudunun eklenmesi
+            let newHead = {x: snakeX, y: snakeY};
+            snake.unshift(newHead);
+
+            // Yılanın yemeği yemesi
+            if (snakeX == food.x && snakeY == food.y) {
+                score++;
+                food = {
+                    x: Math.floor(Math.random() * 19 + 1) * box,
+                    y: Math.floor(Math.random() * 19 + 1) * box
+                };
+            } else {
+                snake.pop();
+            }
+
+            // Yılanın kendine çarpması
+            for (let i = 1; i < snake.length; i++) {
+                if (snake[i].x == snakeX && snake[i].y == snakeY) {
+                    clearInterval(game);
+                }
+            }
+
+            // Yılanın duvara çarpması
+            if (snakeX < 0 || snakeX >= 20 * box || snakeY < 0 || snakeY >= 20 * box) {
+                clearInterval(game);
+            }
+
+            // Skoru göster
+            ctx.fillStyle = "black";
+            ctx.font = "30px Arial";
+            ctx.fillText("Skor: " + score, 10, 30);
+        }
+
+        // Oyun başlatmak için setInterval kullan
+        let game = setInterval(draw, 100);
+    </script>
 </body>
 </html>
