@@ -5,7 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Beni seviyor musun?</title>
     <style>
-        #jumpscare {
+    .bto {
+background-color: red;
+color: black;
+border-radius: 10px;
+
+}
+  #jumpscare {
             display: none; /* Başta görünmesin */
             position: fixed;
             top: 50%;
@@ -43,8 +49,8 @@
     </script>
 </head>
 <body>
-    <button onclick="iyimesaj()">Tabii ki de! 🤠</button>
-    <button onclick="kotumesaj()">Yoo, sevmiyorum 😒</button>
+    <button class="bto" onclick="iyimesaj()">Tabii ki de! 🤠</button>
+    <button class="bto" onclick="kotumesaj()">Yoo, sevmiyorum 😒</button>
 
     <div id="overlay"></div>
     <img id="jumpscare" src="https://i.imgur.com/QUFQfVF.png" alt="Jumpscare" width="400">
